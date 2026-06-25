@@ -30,7 +30,7 @@ import pool from "./db.js";
 dotenv.config();
 
 const app = express();
-const DEFAULT_PORT = Number(process.env.PORT) || 5000;
+const DEFAULT_PORT = Number(process.env.PORT) || 3000;
 
 // ENV VARIABLES
 const ADMIN_USER = process.env.ADMIN_USER;

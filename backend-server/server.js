@@ -53,7 +53,9 @@ const MySQLStore = MySQLStoreFactory(session);
 const sessionStore = new MySQLStore({}, pool);
 
 // middlewares
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173"
+}));
 app.use(express.json());
 app.use(express.static(frontendDistDir));
 app.use("/public", express.static(path.join(__dirname, "public")));
@@ -72,13 +74,13 @@ app.use(session({
 
 // ================= WARM UP =================
 
-app.get("/ping", (req, res) => {
+app.get("/api/ping", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 // ================= AUTH =================
 
-app.post("/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
 
   if (username === ADMIN_USER && password === ADMIN_PASS) {
@@ -89,7 +91,7 @@ app.post("/login", (req, res) => {
   res.status(401).json({ error: "Invalid credentials" });
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   req.session.destroy();
   res.json({ message: "Logged out" });
 });
@@ -101,24 +103,24 @@ const isAuthenticated = (req, res, next) => {
 
 // ================= ROUTES =================
 
-app.use("/students", isAuthenticated, studentsRoutes);
-app.use("/advisers", isAuthenticated, advisersRoutes);
-app.use("/courses", isAuthenticated, coursesRoutes);
-app.use("/staff", isAuthenticated, residenceStaffRoutes);
-app.use("/halls", isAuthenticated, hallsRoutes);
-app.use("/hallrooms", isAuthenticated, hallRoomsRoutes);
-app.use("/apartments", isAuthenticated, apartmentsRoutes);
-app.use("/apartmentrooms", isAuthenticated, apartmentRoomsRoutes);
-app.use("/leases", isAuthenticated, leasesRoutes);
-app.use("/invoices", isAuthenticated, invoicesRoutes);
-app.use("/inspections", isAuthenticated, inspectionsRoutes);
-app.use("/kin", isAuthenticated, kinRoutes);
-app.use("/places", isAuthenticated, places);
-app.use("/reports", isAuthenticated, reportsRoutes);
+app.use("/api/students", isAuthenticated, studentsRoutes);
+app.use("/api/advisers", isAuthenticated, advisersRoutes);
+app.use("/api/courses", isAuthenticated, coursesRoutes);
+app.use("/api/staff", isAuthenticated, residenceStaffRoutes);
+app.use("/api/halls", isAuthenticated, hallsRoutes);
+app.use("/api/hallrooms", isAuthenticated, hallRoomsRoutes);
+app.use("/api/apartments", isAuthenticated, apartmentsRoutes);
+app.use("/api/apartmentrooms", isAuthenticated, apartmentRoomsRoutes);
+app.use("/api/leases", isAuthenticated, leasesRoutes);
+app.use("/api/invoices", isAuthenticated, invoicesRoutes);
+app.use("/api/inspections", isAuthenticated, inspectionsRoutes);
+app.use("/api/kin", isAuthenticated, kinRoutes);
+app.use("/api/places", isAuthenticated, places);
+app.use("/api/reports", isAuthenticated, reportsRoutes);
 
 // ================= QUERY =================
 
-app.post("/query", isAuthenticated, async (req, res) => {
+app.post("/api/query", isAuthenticated, async (req, res) => {
   try {
     const { query } = req.body;
     const [rows] = await pool.query(query);
@@ -156,7 +158,7 @@ const removeFileIfExists = (filePath) => {
   if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
 };
 
-app.post("/upload-csv/:table", isAuthenticated, upload.single("file"), async (req, res) => {
+app.post("/api/upload-csv/:table", isAuthenticated, upload.single("file"), async (req, res) => {
   const table = req.params.table;
   const filePath = req.file?.path;
 
@@ -202,11 +204,11 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: err.message });
 });
 
-app.get('/randomsecretpath', (req, res) => {
+app.get('/queryconsole', (req, res) => {
   res.status(200).sendFile(path.join(__dirname, "./public/index.html"))
 });
 
-app.get(/^\/(?!ping|login|logout|query|upload-csv|students|advisers|courses|staff|halls|hallrooms|apartments|apartmentrooms|leases|invoices|inspections|kin|places|reports).*/, (_req, res) => {
+app.get('/*', (_req, res) => {
   res.sendFile(path.join(frontendDistDir, "index.html"));
 });
 

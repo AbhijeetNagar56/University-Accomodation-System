@@ -6,22 +6,25 @@ This server manages student accommodation data such as students, leases, rooms, 
 ---
 
 # Quick Links
-**Web link**
 
-**Android App**
-./Android/udba.apk
+**Android App:**
+android app (udba.apk)<br>
+
 **ER Diagram:**  
-https://dbdiagram.io/d/69bbc8a978c6c4bc7a1fe414  
+https://dbdiagram.io/d/69bbc8a978c6c4bc7a1fe414  <br>
 
 **API Diagram:**  
-https://miro.com/app/board/uXjVGqHM6t4=/?share_link_id=403010924186 
+https://miro.com/app/board/uXjVGqHM6t4=/?share_link_id=403010924186 <br>
+
+--- 
+# High level Diagram
+<img src="./public/Database.png" alt="not ad">
 
 **Login Page → Query Console Sample Query**
 
 ```sql
 select * from Students;
 ```
-
 
 ## Tech Stack
 **Frontend:** Android Studio, Kotlin, Jetpack Compose

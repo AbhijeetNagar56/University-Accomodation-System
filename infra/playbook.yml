@@ -1,0 +1,56 @@
+---
+- name: Configure Production Application Server
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+        state: present
+
+    - name: Install Docker Engine & Compose plugin
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create app deployment directory
+      file:
+        path: /app
+        state: directory
+        mode: '0755'
+
+    - name: Copy project compose file to remote target
+      copy:
+        src: ../compose.yaml
+        dest: /app/compose.yaml
+
+    - name: Boot application cluster via Docker Compose
+      shell: docker compose -f /app/compose.yaml up -d
